@@ -1,4 +1,4 @@
-name: 'facebook_ads'
+name: 'facebook_ads_bigquery'
 version: '1.0'
 
 source-paths: ["models"]   # paths with source code to compile
