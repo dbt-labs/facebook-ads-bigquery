@@ -112,7 +112,7 @@ final as (
         max(clicks) as clicks,
         max(spend) as spend,
 
-        array_agg(struct(distinct 
+        array_agg(struct(
             ad_id,
             ad_unique_id
         ) order by ad_id) as ads
