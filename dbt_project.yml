@@ -9,12 +9,10 @@ test-paths: ["test"]       # where to store test results
 data-paths: ["data"]       # load CSVs from this directory with `dbt seed`
 
 models:
-  facebook_ads:
+  facebook_ads_bigquery:
     stitch:
       ad_performance:
         enabled: true
-      segmented:
-        enabled: false
       vars:
         ##ad performance vars
         ads_table:
@@ -22,17 +20,3 @@ models:
         adsets_table:
         campaigns_table:
         ads_insights_table:
-        ##segmented vars
-        ads_insights_agegender_table:           "replace me"
-        ads_insights_platform_device_table:     "replace me"
-        ads_insights_country_table:             "replace me"
-        ads_insights_actions_table:             "replace me"
-        ads_insights_actions_values_table:      "replace me"
-        ads_insights_ag_actions_values_table:   "replace me"
-        ads_insights_ag_actions_table:          "replace me"
-        ads_insights_c_actions_values_table:    "replace me"
-        ads_insights_c_actions_table:           "replace me"
-        ads_insights_pd_actions_values_table:   "replace me"
-        ads_insights_pd_actions_table:          "replace me"
-    fivetran:
-      enabled: false
