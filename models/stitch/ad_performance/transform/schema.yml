@@ -1,0 +1,10 @@
+
+fb_ad_insights_xf:
+    constraints:
+        unique:
+            - id
+        not_null:
+            - id
+            - date_day
+            - adset_id
+

@@ -1,0 +1,21 @@
+fb_adsets:
+    constraints:
+        unique:
+            - id
+        not_null:
+            - id
+
+fb_campaigns:
+    constraints:
+        unique:
+            - id
+        not_null:
+            - id
+            - name
+
+fb_ad_creatives:
+    constraints:
+        unique:
+            - id
+        not_null:
+            - id
