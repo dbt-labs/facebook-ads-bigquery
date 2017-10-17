@@ -67,7 +67,6 @@ paid_metrics as (
             (partition by ad_id, date_day order by date_day rows between unbounded preceding and unbounded following)
             as paid_likes
     from joined
-    group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 
 ),
 
