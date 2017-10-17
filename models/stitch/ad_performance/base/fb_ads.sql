@@ -4,6 +4,7 @@
 --this id when joins are done.
 
 select distinct
+
     nullif(id,'') as id,
     nullif(account_id,'') as account_id,
     nullif(adset_id,'') as adset_id,

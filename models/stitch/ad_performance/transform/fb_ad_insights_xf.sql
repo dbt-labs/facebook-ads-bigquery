@@ -24,7 +24,6 @@ with ads as (
 base as (
 
     select distinct
-        --md5(concat(cast(insights.date_day as string), '|', cast(ads.unique_id as string))) as id,
         insights.*,
         creatives.object_story_id,
         ads.unique_id as ad_unique_id
@@ -57,11 +56,24 @@ joined as (
 
 ),
 
+paid_metrics as (
+
+    select
+        *,
+        sum(case when action_type = 'post' then num_actions else null end) over
+            (partition by ad_id, date_day order by date_day rows between unbounded preceding and unbounded following)
+            as paid_shares,
+        sum(case when action_type = 'like' then num_actions else null end) over
+            (partition by ad_id, date_day order by date_day rows between unbounded preceding and unbounded following)
+            as paid_likes
+    from joined
+    group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+
+),
+
 max_values as (
 --there are situations where a singular adset_id shows up multiple times
---per action type per day. In comparing to the values in the existing document
---https://docs.google.com/spreadsheets/d/1RrYGNpAK1n6SyZlTTFoECXQ7jqMyNmFYq6giWpPo5Hw/edit?ts=5967d5a7#gid=1134602971
---grabbing the max values for actions and spend matched the values perfectly
+--per action type per day.
 
     select distinct
         date_day,
@@ -71,57 +83,39 @@ max_values as (
         account_id,
         account_name,
         ad_unique_id,
-        action_type,
         adset_name,
         campaign_name,
-        first_value(object_story_id ignore nulls) over (partition by adset_id
+        paid_shares,
+        paid_likes,
+        first_value(object_story_id ignore nulls) over (partition by ad_id
             order by date_day rows between unbounded preceding and unbounded
             following) as object_story_id,
-        max(impressions) over (partition by adset_id, date_day order by date_day
+        max(impressions) over (partition by ad_id, date_day order by date_day
             rows between unbounded preceding and unbounded following)
             as impressions,
-        max(spend) over (partition by adset_id, date_day order by date_day
+        max(spend) over (partition by ad_id, date_day order by date_day
             rows between unbounded preceding and unbounded following) as spend,
-        max(clicks) over (partition by adset_id, date_day order by date_day
+        max(clicks) over (partition by ad_id, date_day order by date_day
             rows between unbounded preceding and unbounded following) as clicks,
-        max(num_actions) over (partition by adset_id, date_day, action_type
+        sum(num_actions) over (partition by ad_id, date_day
             order by date_day rows between unbounded preceding and unbounded
             following) as num_actions
-    from joined
-
+    from paid_metrics
 
 ),
+
 final as (
 
     select
-        date_day,
-        campaign_id,
-        adset_id,
-        account_id,
-        account_name,
-        adset_name,
-        campaign_name,
-        object_story_id,
 
-        sum(case when action_type = 'post' then num_actions else null end)
-            as paid_shares,
-        sum(case when action_type = 'like' then num_actions else null end)
-            as paid_likes,
-
-        max(impressions) as impressions,
-        max(clicks) as clicks,
-        max(spend) as spend,
-
-        array_agg(struct(
-            ad_id,
-            ad_unique_id
-        ) order by ad_id) as ads
-
+      *,
+      to_base64(sha1(concat(
+        cast(date_day as string),
+        cast(adset_id as string),
+        cast(impressions as string),
+        cast(spend as string)
+        ))) as id
     from max_values
-    group by 1, 2, 3, 4, 5, 6, 7, 8
-
 )
 
-select *,
-to_base64(sha1(concat(cast(date_day as string), cast(adset_id as string)))) as id
-from final
+select * from final
