@@ -6,5 +6,10 @@ fb_ad_insights_xf:
         not_null:
             - id
             - date_day
-            - adset_id
 
+fb_ads_xf:
+    constraints:
+        unique:
+            - unique_id
+        not_null:
+            - unique_id
